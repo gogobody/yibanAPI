@@ -1,4 +1,6 @@
 ###易班 FLASK-API ###
+
+基于flask python2 or python
 tip : 使用错误处理程序
     from website.helpers.error_handlers import CustomFlaskErr
     在路由中注册
@@ -24,7 +26,7 @@ tip : 使用错误处理程序
     from website.YibanApi.Client import YiBanApi
     @app.route('/oauth')
     def do_oauth():
-        return YiBanApi.do_oauth()
+        YiBanApi.do_oauth()
 2.使用:
     eg:
     {"base_info":YiBanApi.base_info(),"detail_info":YiBanApi.detail_info()}
