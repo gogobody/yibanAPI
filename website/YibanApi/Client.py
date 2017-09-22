@@ -10,6 +10,7 @@ from Crypto.Cipher import AES
 from .user_api.user_api import user_real_info
 from .msg.send_letter import send_letter
 
+
 def Schooljurisdiction_required(f):
     # @wraps(f)
     def decorated_function(*args,**kwargs):
@@ -56,9 +57,9 @@ class YiBanApi:
         if cls.is_visit_expire():
             raise CustomFlaskErr(return_code=OAUTH_OUT_OF_DATE)
 
-        detail_info = cls.detail_info()
-        if not detail_info:
-            raise CustomFlaskErr(return_code=OAUTH_ERROR)
+        # detail_info = cls.detail_info()
+        # if not detail_info:
+        #     raise CustomFlaskErr(return_code=OAUTH_ERROR)
 
 
 
@@ -94,6 +95,7 @@ class YiBanApi:
                     'userid': user_info['visit_user']['userid'],
                     'visit_time': user_info['visit_time']
                 }
+                # print(_base_info)
                 return _base_info
             except Exception as e:
                 print(e)
@@ -123,14 +125,14 @@ class YiBanApi:
         if not token:
             raise CustomFlaskErr(return_code=TOKEN_NOT_FOOUND)
         print(token)
-        res = requests.get(url='https://openapi.yiban.cn/user/me?access_token=%s' % token).content
+        res = requests.get(url='https://openapi.yiban.cn/user/me?access_token=%s' % token).text
         res = json.loads(res)
-        print("res:",res)
+        # print("res:",res)
         if res and res['status'] == 'success':
             return res['info']
         else:
             # self.error_msg = res['info']['msgCN']
-            return False
+            raise CustomFlaskErr(return_code=ERROR)
 
     @classmethod
     def decrypt(cls,verify_request):
@@ -154,7 +156,11 @@ class YiBanApi:
             data = YiBanApi.h2b(verify_request)
             decryptor = AES.new(current_app.config.get('APP_SECRET'), mode, IV=current_app.config.get('APPID'))
             plain = decryptor.decrypt(data)
-            oauth_state = json.loads(plain.rstrip(chr(0).encode('latin1')))
+            p = plain.decode('latin1').rstrip(chr(0))
+            oauth_state = json.loads(p)
+            # print(plain.rstrip(chr(0).encode('latin1')).decode('latin1'))
+            # oauth_state = json.loads(plain.rstrip(chr(0).encode('latin1')).decode('latin1'))
+
             return oauth_state
         except Exception as e:
             print(e)
